@@ -4,13 +4,6 @@ import sharp from "sharp";
 const s3 = new S3();
 const BUCKET_NAME = "two-point-five-lambda-bucket";
 
-const streamToBuffer = (stream) => new Promise((resolve, reject) => {
-    const chunks = [];
-    stream.on('data', chunk => chunks.push(chunk));
-    stream.on('end', () => resolve(Buffer.concat(chunks)));
-    stream.on('error', reject);
-});
-
 export const handler = async (event) => {
     console.log("Event:", JSON.stringify(event, null, 2));
 
@@ -33,7 +26,7 @@ export const handler = async (event) => {
         console.log("Object fetched successfully");
 
         console.log("Reading image data");
-        const inputBuffer = await streamToBuffer(Body);
+        const inputBuffer = Body.transformToByteArray();
         console.log("Image data read successfully");
 
         console.log("Resizing image");
