@@ -4,7 +4,14 @@ import sharp from "sharp";
 const s3 = new S3();
 const BUCKET_NAME = "";
 
-export const handler = async ( event ) => {
+const streamToBuffer = (stream) => new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on('data', chunk => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+});
+
+export const handler = async (event) => {
     console.log("Event:", JSON.stringify(event, null, 2));
 
     const key = decodeURIComponent(
@@ -13,11 +20,10 @@ export const handler = async ( event ) => {
     console.log("Processing key:", key);
 
     if (!key.startsWith("original-images/")) {
-        console.log(
-        "Not processing this file as it's not in the original-images/ folder"
-        );
+        console.log("Not processing this file as it's not in the original-images/ folder");
         return { statusCode: 200, body: "File skipped" };
     }
+
     try {
         console.log("Fetching object from S3");
         const { Body, ContentType } = await s3.getObject({
@@ -27,7 +33,7 @@ export const handler = async ( event ) => {
         console.log("Object fetched successfully");
 
         console.log("Reading image data");
-        const inputBuffer = await Body.transformToByteArray();
+        const inputBuffer = await streamToBuffer(Body);
         console.log("Image data read successfully");
 
         console.log("Resizing image");
@@ -51,5 +57,5 @@ export const handler = async ( event ) => {
     } catch (error) {
         console.error("Error processing image:", error);
         return { statusCode: 500, body: `Error resizing image: ${error.message}` };
-    }    
-}
+    }
+};
