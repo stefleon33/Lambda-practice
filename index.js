@@ -2,7 +2,7 @@ import { S3 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 
 const s3 = new S3();
-const BUCKET_NAME = "";
+const BUCKET_NAME = "two-point-five-lambda-bucket";
 
 const streamToBuffer = (stream) => new Promise((resolve, reject) => {
     const chunks = [];
