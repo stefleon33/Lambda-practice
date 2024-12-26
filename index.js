@@ -1,10 +1,10 @@
-import { S3 } from "@aws-sdk/client-s3";
-import sharp from "sharp";
+const { S3 } = require("@aws-sdk/client-s3");
+const sharp = require("sharp");
 
 const s3 = new S3();
 const BUCKET_NAME = "two-point-five-lambda-bucket";
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
     console.log("Event:", JSON.stringify(event, null, 2));
 
     const key = decodeURIComponent(
